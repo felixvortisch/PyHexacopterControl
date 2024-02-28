@@ -18,7 +18,7 @@ from mpc.hexacopter_model import export_rocket_ode_model
 # from casadi import SX, vertcat, cos, sin, sqrt, sumsqr
 
 class MPCPolicy(BaseControl):
-    def __init__(self, initial_state, time_horizon=2.0, epochs_per_sec=10):
+    def __init__(self, initial_state, time_horizon=1.0, epochs_per_sec=10):
         super().__init__()
 
         self.ocp        = AcadosOcp() # create ocp object to formulate the OCP
@@ -39,12 +39,12 @@ class MPCPolicy(BaseControl):
         self.ocp.cost.cost_type   = 'LINEAR_LS'
         self.ocp.cost.cost_type_e = 'LINEAR_LS'
         self.Q_mat                = np.diag(self.model.weight_diag)  # state weight
-        self.R_mat                = np.diag(np.ones(self.nu, )*1.0)  # weight on control input u
-        self.ocp.cost.W           = scipy.linalg.block_diag(self.Q_mat, self.R_mat)
-        self.ocp.cost.W_e         = self.Q_mat*100.0
+        self.R_mat                = np.diag(np.ones(self.nu, ))  # weight on control input u   *1e-6
+        self.ocp.cost.W           = scipy.linalg.block_diag(self.Q_mat, self.R_mat)#*1000.0
+        self.ocp.cost.W_e         = self.Q_mat
         self.Vu                   = np.zeros((self.ny, self.nu))
         self.ocp.cost.Vx_e        = np.eye(self.nx)
-        self.initial_control_input = np.array([0.562, 0.562, 0.562, 0.562, 0.566, 0.566])
+        self.initial_control_input = np.array([0.562, 0.562, 0.562, 0.562, 0.566, 0.566]) 
 
         self.ocp.cost.Vx = np.zeros((self.ny, self.nx))
         self.ocp.cost.Vx[:self.nx, :self.nx] = np.eye(self.nx)
@@ -92,17 +92,17 @@ class MPCPolicy(BaseControl):
     def next(self, observation):
         # solve OCP and get next control input
         # Initialisieren Sie die Steuerungsvariablen vor dem Lösen des Problems
-        h_error = self.h_error_old + (self.height - observation[2]) * self.dt
-        observation[13] = h_error
-        observation[14] = self.height
+        #h_error = self.h_error_old + (self.height - observation[2]) * self.dt
+        #observation[13] = h_error
+        #observation[14] = self.height
         #self.acados_ocp_solver.set(13, "x", h_error)
-        self.h_error_old = h_error
+        #self.h_error_old = h_error
         for i in range(self.N_horizon):
             self.acados_ocp_solver.set(i, "u", self.initial_control_input)
         action = self.acados_ocp_solver.solve_for_x0(x0_bar=observation)
 
         # emit 5 state vectors from the prediction horizon
-        NUM_PRED_EPOCHS = 5
+        NUM_PRED_EPOCHS = 10
         step_size = self.N_horizon // NUM_PRED_EPOCHS
 
         predictedX = np.ndarray((NUM_PRED_EPOCHS, self.nx))
@@ -111,8 +111,8 @@ class MPCPolicy(BaseControl):
             predictedX[i,:] = self.acados_ocp_solver.get(i * step_size, "x")
             predictedU[i,:] = self.acados_ocp_solver.get(i * step_size, "u")
 
-        #print(predictedX)
-        #print("U:")
-        #print(predictedU)
+        print(predictedX)
+        print("U:")
+        print(predictedU)
         return action, predictedX
 

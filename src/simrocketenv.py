@@ -39,13 +39,13 @@ class SimRocketEnv(gym.Env):
         # <vehicle specific>
         self.urdf_file = "./src/modelhexacopter.urdf"
         self.UMIN = 0.01 # min. control input
-        self.UMAX =  1.0 # max. control input for thrust (= 100%)
+        self.UMAX =  0.80 # max. control input for thrust (= 100%)
         self.ACTUATORCOUNT = 6 # main thrust, 2x thrust vector, 2x attitude
         # 				Motor Nr: 1			2			3			4			5			6
         #					  Front left, CCW
-        self.THRUST_VECTORS = np.array([[-3.74859930380329e-08, -2.65044773434346e-24, 3.74859930380329e-08, 3.74859930380329e-08, 7.95134320303039e-24, -3.74859930380329e-08],
-                                        [-2.16425481713487e-08, -4.32850963426975e-08, -2.16425481713487e-08, 2.16425481713487e-08, 4.32850963426975e-08, 2.16425481713488e-08],
-                                        [3.07989463947313e-07, 3.07989463947313e-07, 3.07989463947313e-07, 3.07989463947313e-07, 3.07989463947313e-07, 3.07989463947313e-07]])
+        self.THRUST_VECTORS = np.array([[0.0,0.0,0.0,0.0,0.0,0.0],
+    				[0.0,0.0,0.0,0.0,0.0,0.0],
+    				[24.525,24.525, 24.525,24.525,24.525,24.525]])
         # 				Motor Nr: 1   2    3      4      5     6
         #					  Front left, CCW					
         self.MOTOR_COORDINATES = np.array([[0.39, 0.0, -0.39, -0.39, 0.0, 0.39],
@@ -63,7 +63,7 @@ class SimRocketEnv(gym.Env):
 
         # <state vector config>
         self.state_cfg = {}
-        self.state = np.zeros((15,))
+        self.state = np.zeros((13,))
         self.q = np.array([1.0, 0.0, 0.0, 0.0]) # attitude quaternion
         self.omega = np.array([0.0, 0.0, 0.0]) # angular rate (body)
         self.pos_n = np.array([0.0,0.0,0.0]) # East North Up Position (m)
@@ -231,12 +231,12 @@ class SimRocketEnv(gym.Env):
             #print(u)
             #u = u*8880.0
            # self.u_current = u
-            u1 = u[0]*8880.0*u[0]*8880.0
-            u2 = u[1]*8880.0*u[1]*8880.0
-            u3 = u[2]*8880.0*u[2]*8880.0
-            u4 = u[3]*8880.0*u[3]*8880.0
-            u5 = u[4]*8880.0*u[4]*8880.0
-            u6 = u[5]*8880.0*u[5]*8880.0
+            u1 = u[0]*u[0]
+            u2 = u[1]*u[1]
+            u3 = u[2]*u[2]
+            u4 = u[3]*u[3]
+            u5 = u[4]*u[4]
+            u6 = u[5]*u[5]
             #print(u1)
            # print("u_current:")
             #print(self.u_current)
@@ -245,12 +245,12 @@ class SimRocketEnv(gym.Env):
             
             t = 5000.0*5000.0
             
-            thrust_motor_1 = self.THRUST_VECTORS[:, 0] * u1 #Front left motor
-            thrust_motor_2 = self.THRUST_VECTORS[:, 1] * u2 # left motor
-            thrust_motor_3 = self.THRUST_VECTORS[:, 2] * u3 #Back left motor
-            thrust_motor_4 = self.THRUST_VECTORS[:, 3] * u4 #Back right motor
-            thrust_motor_5 = self.THRUST_VECTORS[:, 4] * u5 #right motor
-            thrust_motor_6 = self.THRUST_VECTORS[:, 5] * u6 #Front right motor
+            thrust_motor_1 = self.THRUST_VECTORS[:, 0] * u[0] #Front left motor
+            thrust_motor_2 = self.THRUST_VECTORS[:, 1] * u[1] # left motor
+            thrust_motor_3 = self.THRUST_VECTORS[:, 2] * u[2] #Back left motor
+            thrust_motor_4 = self.THRUST_VECTORS[:, 3] * u[3] #Back right motor
+            thrust_motor_5 = self.THRUST_VECTORS[:, 4] * u[4] #right motor
+            thrust_motor_6 = self.THRUST_VECTORS[:, 5] * u[5] #Front right motor
             #print(self.THRUST_VECTORS[:, 0])
             
             #print(u[0]*u[0])
@@ -361,13 +361,13 @@ class SimRocketEnv(gym.Env):
         self.state_cfg["omega_index"] = state_index
         state_index += 3
         
-        self.state[state_index:(state_index+1)] = self.h_error
-        self.state_cfg["h_error_index"] = state_index
-        state_index += 1
+       # self.state[state_index:(state_index+1)] = self.h_error
+        #self.state_cfg["h_error_index"] = state_index
+        #state_index += 1
         
-        self.state[state_index:(state_index+1)] = self.setpoint
-        self.state_cfg["setpoint_index"] = state_index
-        state_index += 1
+        #self.state[state_index:(state_index+1)] = self.setpoint
+        #self.state_cfg["setpoint_index"] = state_index
+        #state_index += 1
 
         #self.state[state_index:(state_index+6)] = self.u_current
         #self.state_cfg["u_index"] = state_index
