@@ -167,7 +167,7 @@ def export_rocket_ode_model() -> AcadosModel:
 
     vel_dot = R_b_to_n@(thrust_body/mass_kg) + gravity_n
     
-    omega_dot = J_inv @ (M @ u - cross(omega, (J @ omega)))  #Gyroscopic Equation Newton
+    omega_dot = J_inv @ (M @ u - cross(omega, (J @ omega)))  #Euler Gyroscopic Equation 
    
     # Core of the MPC magic
     f_expl = vertcat( 	vel,
