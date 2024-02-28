@@ -18,7 +18,7 @@ from mpc.hexacopter_model import export_rocket_ode_model
 # from casadi import SX, vertcat, cos, sin, sqrt, sumsqr
 
 class MPCPolicy(BaseControl):
-    def __init__(self, initial_state, time_horizon=1.0, epochs_per_sec=10):
+    def __init__(self, initial_state, time_horizon=2.0, epochs_per_sec=4):
         super().__init__()
 
         self.ocp        = AcadosOcp() # create ocp object to formulate the OCP
@@ -44,7 +44,7 @@ class MPCPolicy(BaseControl):
         self.ocp.cost.W_e         = self.Q_mat
         self.Vu                   = np.zeros((self.ny, self.nu))
         self.ocp.cost.Vx_e        = np.eye(self.nx)
-        self.initial_control_input = np.array([0.562, 0.562, 0.562, 0.562, 0.566, 0.566]) 
+        self.initial_control_input = np.array([0.5, 0.5, 0.6, 0.6, 0.5, 0.5])*0.8
 
         self.ocp.cost.Vx = np.zeros((self.ny, self.nx))
         self.ocp.cost.Vx[:self.nx, :self.nx] = np.eye(self.nx)
@@ -64,7 +64,7 @@ class MPCPolicy(BaseControl):
         # BGH: Comprises simple bounds, polytopic constraints, general
         # non-linear constraints.
         self.ocp.constraints.constr_type = 'BGH'
-        self.ocp.constraints.lbu = np.array([ 0.01, 0.01, 0.01, 0.01, 0.01, 0.01])
+        self.ocp.constraints.lbu = np.array([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
         self.ocp.constraints.ubu = np.array([ 1.0,  1.0,  1.0,  1.0,  1.0, 1.0 ])
         self.ocp.constraints.x0 = initial_state
         #self.ocp.constraints.u = np.array([ 0.30,  0.30,  0.30,  0.30,  0.30, 0.30 ])

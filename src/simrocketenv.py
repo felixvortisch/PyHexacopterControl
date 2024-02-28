@@ -38,14 +38,14 @@ class SimRocketEnv(gym.Env):
 
         # <vehicle specific>
         self.urdf_file = "./src/modelhexacopter.urdf"
-        self.UMIN = 0.01 # min. control input
-        self.UMAX =  0.80 # max. control input for thrust (= 100%)
+        self.UMIN = 0.0 # min. control input
+        self.UMAX =  1.0 # max. control input for thrust (= 100%)
         self.ACTUATORCOUNT = 6 # main thrust, 2x thrust vector, 2x attitude
         # 				Motor Nr: 1			2			3			4			5			6
         #					  Front left, CCW
-        self.THRUST_VECTORS = np.array([[0.0,0.0,0.0,0.0,0.0,0.0],
-    				[0.0,0.0,0.0,0.0,0.0,0.0],
-    				[24.525,24.525, 24.525,24.525,24.525,24.525]])
+        self.THRUST_VECTORS = np.array([[-2.9559, 0.0, 2.9559, 2.9559, 0.0, -2.9559],
+    				[-1.7066, -3.4132, -1.7066, -1.7066, 3.4132, -1.7066],
+    				[24.2863,24.2863, 24.2863,24.2863,24.2863,24.2863]])
         # 				Motor Nr: 1   2    3      4      5     6
         #					  Front left, CCW					
         self.MOTOR_COORDINATES = np.array([[0.39, 0.0, -0.39, -0.39, 0.0, 0.39],
