@@ -46,7 +46,7 @@ def export_rocket_ode_model() -> AcadosModel:
     # torque from Motormatrix K
     values_M = [[5.6607, 11.3214, 5.6607, -5.6607, -11.3214, -5.6607],
 		       [-9.8116, 0.0, 9.8116, 9.8116, 0.0, -9.8116],
-		       [0.01, -0.01, 0.01, -0.01, 0.01, -0.01]]		#With rotated thust vectors 30° around Z Axis and 8° Azimut
+		       [0.01, -0.01, 0.01, -0.01, 0.01, -0.01]]		#With rotated thust vectors 60° around Z Axis and 8° Azimut (DJI S900 specific)
     #values_M = [[5.5181, 11.0363, 5.5181, -5.5181, -11.0363, -5.5181],
 	#	       [-9.5648, 0.0, 9.5648, 9.5648, 0.0, -9.5648],
 	#	       [0.01, -0.01, 0.01, -0.01, 0.01, -0.01]]	       	#No rotation (Thrust vectors parallel to Z Axis)
@@ -122,9 +122,9 @@ def export_rocket_ode_model() -> AcadosModel:
 
     nx = x.size()[0]
     weight_diag = np.ones((nx,)) * 1e-6  # default weight
-    weight_diag[0] = 1.0 #30000000.0   # pos East
-    weight_diag[1] = 1.0   # pos North
-    weight_diag[2] = 500.0#50000000000.0   # altitude
+    weight_diag[0] = 10.0 #30000000.0   # pos East
+    weight_diag[1] = 10.0   # pos North
+    weight_diag[2] = 50.0#50000000000.0   # altitude
     
     weight_diag[3] = 1.0
     weight_diag[4] = 1.0
@@ -157,7 +157,7 @@ def export_rocket_ode_model() -> AcadosModel:
     
     thrust_body = SX.sym('thrust_body', 3, 1)
     
-    thrust_body = thrust_vectors[:, 0]*u[0]*u[0] + thrust_vectors[:, 1]*u[1]*u[1] + thrust_vectors[:, 2]*u[2]*u[2] + thrust_vectors[:, 3]*u[3]*u[3] + thrust_vectors[:, 4]*u[4]*u[4] + thrust_vectors[:, 5]*u[5]*u[5]
+    thrust_body = thrust_vectors[:, 0]*u[0] + thrust_vectors[:, 1]*u[1] + thrust_vectors[:, 2]*u[2] + thrust_vectors[:, 3]*u[3] + thrust_vectors[:, 4]*u[4] + thrust_vectors[:, 5]*u[5]
     #thrust_body = thrust_body * 1.0e-8
 
     gravity_n = SX.sym('gravity_n', 3, 1)
